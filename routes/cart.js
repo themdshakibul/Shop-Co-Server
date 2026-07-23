@@ -1,10 +1,11 @@
 const { Router } = require("express");
 
-module.exports = (collections, ObjectId) => {
+module.exports = () => {
   const router = Router();
 
   router.get("/add-to-card", async (req, res) => {
     try {
+      const { collections } = req;
       const { email } = req.query;
       let result;
       if (email) {
@@ -21,6 +22,7 @@ module.exports = (collections, ObjectId) => {
 
   router.post("/add-to-card", async (req, res) => {
     try {
+      const { collections } = req;
       const cartItem = req.body;
       const { productId, userEmail, size, color } = cartItem;
 
@@ -48,6 +50,7 @@ module.exports = (collections, ObjectId) => {
 
   router.patch("/add-to-card/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const { id } = req.params;
       const { quantity } = req.body;
 
@@ -68,6 +71,7 @@ module.exports = (collections, ObjectId) => {
 
   router.delete("/add-to-card/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const { id } = req.params;
       if (!ObjectId.isValid(id)) {
         return res.status(400).json({ success: false, message: "Invalid item id!" });

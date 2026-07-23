@@ -1,10 +1,11 @@
 const { Router } = require("express");
 
-module.exports = (collections, ObjectId) => {
+module.exports = () => {
   const router = Router();
 
   router.get("/notifications", async (req, res) => {
     try {
+      const { collections } = req;
       const { email } = req.query;
       res.json(
         email
@@ -20,6 +21,7 @@ module.exports = (collections, ObjectId) => {
 
   router.patch("/notifications/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const r = await collections.notifications.updateOne(
         { _id: new ObjectId(req.params.id) },
         { $set: req.body },

@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
-const { connectDB, ObjectId } = require("./config/db");
+const { connectDB, getCollections, ObjectId } = require("./config/db");
 const { seedIfEmpty } = require("./seed");
 
 const app = express();
@@ -11,40 +11,55 @@ app.use(express.json());
 
 const port = process.env.PORT || 5000;
 
-async function main() {
-  const collections = await connectDB();
+// Middleware: attach collections to req lazily
+app.use(async (req, res, next) => {
+  try {
+    const collections = getCollections();
+    req.collections = collections;
+    req.ObjectId = ObjectId;
+    next();
+  } catch {
+    try {
+      const collections = await connectDB();
+      req.collections = collections;
+      req.ObjectId = ObjectId;
+      seedIfEmpty(collections).catch(() => {});
+      next();
+    } catch (e) {
+      console.error("DB connection error:", e.message, e.stack);
+      res.status(500).json({ error: "Failed to connect to database", detail: e.message });
+    }
+  }
+});
 
-  app.use("/api", require("./routes/products")(collections, ObjectId));
-  app.use("/api", require("./routes/cart")(collections, ObjectId));
-  app.use("/api", require("./routes/orders")(collections, ObjectId));
-  app.use("/api", require("./routes/reviews")(collections));
-  app.use("/api", require("./routes/categories")(collections));
-  app.use("/api", require("./routes/coupons")(collections));
-  app.use("/api", require("./routes/inventory")(collections, ObjectId));
-  app.use("/api", require("./routes/notifications")(collections, ObjectId));
-  app.use("/api", require("./routes/wishlist")(collections, ObjectId));
-  app.use("/api", require("./routes/announcements")(collections));
-  app.use("/api", require("./routes/apiKeys")(collections, ObjectId));
-  app.use("/api", require("./routes/auditLogs")(collections));
-  app.use("/api", require("./routes/emailTemplates")(collections, ObjectId));
-  app.use("/api", require("./routes/addresses")(collections, ObjectId));
-  app.use("/api", require("./routes/users")(collections, ObjectId));
-  app.use("/api", require("./routes/shipping")());
-  app.use("/api", require("./routes/reports")(collections));
-
-  await seedIfEmpty(collections);
-
-  console.log("Pinged your deployment. You successfully connected to MongoDB!");
-}
-
-main().catch(console.dir);
+app.use("/api", require("./routes/products")());
+app.use("/api", require("./routes/cart")());
+app.use("/api", require("./routes/orders")());
+app.use("/api", require("./routes/reviews")());
+app.use("/api", require("./routes/categories")());
+app.use("/api", require("./routes/coupons")());
+app.use("/api", require("./routes/inventory")());
+app.use("/api", require("./routes/notifications")());
+app.use("/api", require("./routes/wishlist")());
+app.use("/api", require("./routes/announcements")());
+app.use("/api", require("./routes/apiKeys")());
+app.use("/api", require("./routes/auditLogs")());
+app.use("/api", require("./routes/emailTemplates")());
+app.use("/api", require("./routes/addresses")());
+app.use("/api", require("./routes/users")());
+app.use("/api", require("./routes/shipping")());
+app.use("/api", require("./routes/reports")());
 
 app.get("/", (req, res) => {
   res.send("Wellcome to the Shop-Co Server!");
 });
 
-app.listen(port, () => {
-  console.log(`Shop-Co listening on port ${port}`);
-});
+if (require.main === module) {
+  connectDB().then(() => {
+    app.listen(port, () => {
+      console.log(`Shop-Co listening on port ${port}`);
+    });
+  }).catch(console.dir);
+}
 
 module.exports = app;

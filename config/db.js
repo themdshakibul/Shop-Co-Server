@@ -1,17 +1,22 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
-
+let client = null;
 let collections = null;
 
 async function connectDB() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) throw new Error("MONGODB_URI environment variable is not set");
+
+  client = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+    connectTimeoutMS: 5000,
+    serverSelectionTimeoutMS: 5000,
+  });
+
   await client.connect();
   const db = client.db("Shop-co");
 
@@ -43,4 +48,4 @@ function getCollections() {
   return collections;
 }
 
-module.exports = { connectDB, getCollections, ObjectId, client };
+module.exports = { connectDB, getCollections, ObjectId };

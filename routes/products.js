@@ -1,14 +1,16 @@
 const { Router } = require("express");
 
-module.exports = (collections, ObjectId) => {
+module.exports = () => {
   const router = Router();
 
   router.get("/all-products", async (req, res) => {
+    const { collections } = req;
     const result = await collections.products.find().toArray();
     res.json(result);
   });
 
   router.get("/all-products/:id", async (req, res) => {
+    const { collections, ObjectId } = req;
     const id = req.params.id;
     const result = await collections.products.findOne({ _id: new ObjectId(id) });
     res.json(result);
@@ -16,6 +18,7 @@ module.exports = (collections, ObjectId) => {
 
   router.post("/all-products", async (req, res) => {
     try {
+      const { collections } = req;
       const product = req.body;
       const result = await collections.products.insertOne(product);
       res.status(201).json({ success: true, result });
@@ -27,6 +30,7 @@ module.exports = (collections, ObjectId) => {
 
   router.patch("/all-products/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const { id } = req.params;
       const updates = req.body;
       if (!ObjectId.isValid(id)) {
@@ -45,6 +49,7 @@ module.exports = (collections, ObjectId) => {
 
   router.delete("/all-products/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const { id } = req.params;
       if (!ObjectId.isValid(id)) {
         return res.status(400).json({ success: false, message: "Invalid id" });
@@ -58,6 +63,7 @@ module.exports = (collections, ObjectId) => {
   });
 
   router.get("/all-reviews", async (req, res) => {
+    const { collections } = req;
     const result = await collections.products.find().toArray();
     res.json(result);
   });

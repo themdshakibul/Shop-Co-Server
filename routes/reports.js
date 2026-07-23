@@ -1,10 +1,11 @@
 const { Router } = require("express");
 
-module.exports = (collections) => {
+module.exports = () => {
   const router = Router();
 
   router.get("/reports/stats", async (req, res) => {
     try {
+      const { collections } = req;
       const usersCount = await collections.users.countDocuments();
       const productsCount = await collections.products.countDocuments();
       const ordersCount = await collections.orders.countDocuments();
@@ -22,6 +23,7 @@ module.exports = (collections) => {
 
   router.get("/dashboard/stats", async (req, res) => {
     try {
+      const { collections } = req;
       const totalProducts = await collections.products.countDocuments();
       const totalUsers = await collections.users.countDocuments();
       const totalCartItems = await collections.addToCard.countDocuments();

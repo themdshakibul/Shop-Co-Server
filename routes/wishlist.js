@@ -1,10 +1,11 @@
 const { Router } = require("express");
 
-module.exports = (collections, ObjectId) => {
+module.exports = () => {
   const router = Router();
 
   router.get("/wishlist", async (req, res) => {
     try {
+      const { collections } = req;
       const { email } = req.query;
       res.json(
         email
@@ -18,6 +19,7 @@ module.exports = (collections, ObjectId) => {
 
   router.post("/wishlist", async (req, res) => {
     try {
+      const { collections } = req;
       const r = await collections.wishlist.insertOne(req.body);
       res.status(201).json({ success: true, result: r });
     } catch (e) {
@@ -27,6 +29,7 @@ module.exports = (collections, ObjectId) => {
 
   router.delete("/wishlist/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const r = await collections.wishlist.deleteOne({ _id: new ObjectId(req.params.id) });
       res.json({ success: true, result: r });
     } catch (e) {

@@ -1,10 +1,11 @@
 const { Router } = require("express");
 
-module.exports = (collections, ObjectId) => {
+module.exports = () => {
   const router = Router();
 
   router.get("/addresses", async (req, res) => {
     try {
+      const { collections } = req;
       const { email } = req.query;
       let result;
       if (email) {
@@ -21,6 +22,7 @@ module.exports = (collections, ObjectId) => {
 
   router.post("/addresses", async (req, res) => {
     try {
+      const { collections } = req;
       const address = req.body;
       if (address.default) {
         await collections.addresses.updateMany(
@@ -38,6 +40,7 @@ module.exports = (collections, ObjectId) => {
 
   router.patch("/addresses/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const { id } = req.params;
       if (!ObjectId.isValid(id)) {
         return res.status(400).json({ success: false, message: "Invalid id" });
@@ -63,6 +66,7 @@ module.exports = (collections, ObjectId) => {
 
   router.delete("/addresses/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const { id } = req.params;
       if (!ObjectId.isValid(id)) {
         return res.status(400).json({ success: false, message: "Invalid id" });

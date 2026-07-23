@@ -1,10 +1,11 @@
 const { Router } = require("express");
 
-module.exports = (collections, ObjectId) => {
+module.exports = () => {
   const router = Router();
 
   router.get("/orders", async (req, res) => {
     try {
+      const { collections } = req;
       const { email } = req.query;
       const result = email
         ? await collections.orders.find({ email }).toArray()
@@ -17,6 +18,7 @@ module.exports = (collections, ObjectId) => {
 
   router.post("/orders", async (req, res) => {
     try {
+      const { collections } = req;
       const r = await collections.orders.insertOne(req.body);
       res.status(201).json({ success: true, result: r });
     } catch (e) {
@@ -26,6 +28,7 @@ module.exports = (collections, ObjectId) => {
 
   router.patch("/orders/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const r = await collections.orders.updateOne(
         { _id: new ObjectId(req.params.id) },
         { $set: req.body },
@@ -38,6 +41,7 @@ module.exports = (collections, ObjectId) => {
 
   router.delete("/orders/:id", async (req, res) => {
     try {
+      const { collections, ObjectId } = req;
       const r = await collections.orders.deleteOne({ _id: new ObjectId(req.params.id) });
       res.json({ success: true, result: r });
     } catch (e) {
