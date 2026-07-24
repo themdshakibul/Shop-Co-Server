@@ -6,7 +6,11 @@ module.exports = () => {
   router.get("/reviews", async (req, res) => {
     try {
       const { collections } = req;
-      res.json(await collections.reviews.find().toArray());
+      const { email } = req.query;
+      const result = email
+        ? await collections.reviews.find({ user: email }).toArray()
+        : await collections.reviews.find().toArray();
+      res.json(result);
     } catch (e) {
       res.status(500).json({ success: false, message: e.message });
     }
